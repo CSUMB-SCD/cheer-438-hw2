@@ -1,7 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var express = require('express');
-var router = express.Router();
+
 
 /* GET users listing. */
 
@@ -76,10 +75,7 @@ router.get('/', function(req, res, next) {
         
     });
     
-    makeTwitterRequest(function(twitterResp){
-        res.send(twitterResp);
-    })
-    
+   
     
 });
 

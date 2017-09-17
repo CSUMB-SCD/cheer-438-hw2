@@ -10,7 +10,7 @@ var users = require('./routes/users');
 var about = require('./routes/about');
 var random = require('./routes/random');
 var getty = require('./routes/getty');
-
+var twitter = require('./routes/twitter');
 var app = express();
 
 // view engine setup
@@ -30,6 +30,7 @@ app.use('/users', users);
 app.use('/about', about);
 app.use('/random', random);
 app.use('/getty', getty);
+app.use('/twitter', twitter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

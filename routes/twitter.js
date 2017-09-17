@@ -3,11 +3,12 @@ var router = express.Router();
 var https = require("https");
 var btoa = require("btoa");
 
+var searchTerm = "potatos";
 
 var keys = {
     client: process.env.TWITTER_API,
     secret: process.env.TWITTER_SECRET
-}
+};
 
 var combined = keys.client + ":" + keys.secret;
 var base64encode = btoa(combined);  //create the base64 encoded string using consumer and secret keys
@@ -17,14 +18,15 @@ function getAccessToken(handleAccessTokenResponse){
      const options = {
         hostname:'api.twitter.com',
         port: 443,
-        path: '/oath2/token',
+        path: '/oauth2/token',
         method: 'POST',
         headers: {
             'Authorization' : 'Basic ' + base64encode,
-            'Content-Type' : 'application/x-www-form-urlendcoded;charset=UTF-8'
+            'Content-Type' : 'application/x-www-form-urlencoded;charset=UTF-8'
         }
     };
     
+    //console.log(base64encode);
     
     var postData = 'grant_type=client_credentials';
     var completeTwitterResponse= '';
@@ -40,10 +42,14 @@ function getAccessToken(handleAccessTokenResponse){
        res.on('end',function(){
            console.log("++++++ TWITTER TOKEN RETURN +++++++");
            console.log("Status code: " + this.statusCode);
-           var twitterResponseJSON = JSON.parse(completeTwitterResponse);   //parse the json to get the access token
-           var accessToken = twitterResponseJSON.access_token;  //pull out the token
            
-           handleAccessTokenResponse(accessToken);
+            var twitterResponseJSON = JSON.parse(completeTwitterResponse);   //parse the json to get the access token
+            var accessToken = twitterResponseJSON.access_token;  //pull out the token
+           
+            handleAccessTokenResponse(accessToken);
+            
+    
+          
        });
         
     });
@@ -52,6 +58,129 @@ function getAccessToken(handleAccessTokenResponse){
     postReq.end();
 }
 
-function makeTwitterRequest(sendBackTwitter){
+function makeTwitterRequest(accessToken, sendResponseToBrowser){
+    const options2 = {
+        hostname: 'api.twitter.com',
+        port: 443,
+        path: '/1.1/search/tweets.json?q=' + searchTerm,
+        method: 'GET',
+        headers:{
+            'Authorization': 'Bearer ' + accessToken
+        }
+        
+    };
+    // console.log(options2)
+    
+    var completeTwitterResponse = '';
+    
+    //set up request
+    var twitterRequest = https.request(options2, function(twitterResponse){
+        twitterResponse.setEncoding('utf8');
+        twitterResponse.on('data', function(chunk){
+           completeTwitterResponse += chunk;
+        });
+    
+        twitterResponse.on('end', function(){
+            console.log("++++++ TWITTER Q RETURN +++++++");
+            console.log("Status Code: " + this.statusCode);
+            
+            var responseJSON = JSON.parse(completeTwitterResponse);
+            var tweetsList = responseJSON.statuses;
+            console.log("num Tweets: " + tweetsList.length )
+            var twit = Math.floor(Math.random() * tweetsList.length); 
+            var tweet = tweetsList[twit];
+            
+            
+            sendResponseToBrowser(tweet);
+        });
+    });
+    
+    twitterRequest.end();
+}
+
+
+function makeGettyRequest(sendBackGetty ){  //calls sendback at end
+    
+    module.exports = router;
+    var https = require('https');
+    
+    //https://api.gettyimages.com/v3/search/images?exclude_nudity=true&minimum_size=medium&orientations=horizontal%2Csquare&page_size=50&phrase=car
+    //build API call
+    const options = {
+        hostname:'api.gettyimages.com',
+        port: 443,
+        path: '/v3/search/images?exclude_nudity=true&minimum_size=medium&orientations=horizontal%2Csquare&phrase=' + searchTerm,
+        method: 'GET',
+        headers: {
+            'Api-Key': process.env.GETTY_API
+        }
+    };
+    
+    
+    var apiGettyResponse = '';
+    
+    //send call for callback
+    https.get(options, function(reponse){
+        reponse.on('data', function(chunk){ //when we get a response add to the apiresponse
+            apiGettyResponse+= chunk;        //chuck is the returned info
+            
+            
+            
+        });
+         
+        reponse.on('end',function(){
+            console.log("status code: " + this.statusCode);
+            //console.log("Complete response: " + apiGettyResponse);
+            var gettyResponseJSON = JSON.parse(apiGettyResponse);
+            var images = gettyResponseJSON.images;
+            //console.log(gettyResponseJSON);
+            var choice = Math.floor(Math.random() * images.length); 
+            console.log("num images: " + images.length + " ChosenIndex: " + choice);
+            //console.log("url of first Image: " + images[0].display_sizes[0]);
+            var imageURI = images[choice].display_sizes[0].uri;
+                   
+          //callback return
+            sendBackGetty(imageURI);
+        });
+    }).on("error", function(e){
+        console.on("got error: " + e.message); 
+    });
     
 }
+
+
+
+
+router.get('/', function(req, res, next) {
+    
+    
+    var tweetShow = "";
+    var gettyShow = "";
+
+    
+     getAccessToken(function(accessToken){
+        makeTwitterRequest(accessToken, function(tweet){
+    
+            //console.log("num Tweets: " + tweets.length )
+            
+            //res.render('twitter', {tweetsList: tweet});
+            tweetShow = tweet.text;
+            
+        });
+    });
+    
+      //send the API call and parse the response
+    makeGettyRequest(function(gettyURL){
+        gettyShow = gettyURL;
+        
+       
+        //res.render('gettyURL',{gettyURL: gettyURL});
+        
+    });
+    console.log("Twitter set: " + tweetShow);
+     console.log("getty set: " + gettyShow);
+    res.render('twitter',{gettyURL: gettyShow, tweet: tweetShow});
+    // res.render('index', { title: 'Express', className: "CST338"});
+});
+
+module.exports = router;
