@@ -1,8 +1,14 @@
 extends layout
 
 block content
-  h1 Tweets
-  h2 !{tweet}
-  h2 !{gettyURL}
+  h1 Potatweets
+  div.twitterHolder( style={'background-image': 'url(#{gettyURL})'})
+    div.tweet
+      h2 !{tweet.text}
+      p !{tweet.user.screen_name}
   
+  p
+  a(href= "https://twitter.com/statuses/" + tweet.id_str) Tweet Source
+  p 
+  a(href= gettyURL) Getty Source
   

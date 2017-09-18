@@ -3,7 +3,7 @@ var router = express.Router();
 var https = require("https");
 var btoa = require("btoa");
 
-var searchTerm = "potatos";
+var searchTerm = "potato";
 
 var keys = {
     client: process.env.TWITTER_API,
@@ -62,7 +62,7 @@ function makeTwitterRequest(accessToken, sendResponseToBrowser){
     const options2 = {
         hostname: 'api.twitter.com',
         port: 443,
-        path: '/1.1/search/tweets.json?q=' + searchTerm,
+        path: '/1.1/search/tweets.json?count=100&lang=en&q=' + searchTerm,
         method: 'GET',
         headers:{
             'Authorization': 'Bearer ' + accessToken
@@ -109,7 +109,7 @@ function makeGettyRequest(sendBackGetty ){  //calls sendback at end
     const options = {
         hostname:'api.gettyimages.com',
         port: 443,
-        path: '/v3/search/images?exclude_nudity=true&minimum_size=medium&orientations=horizontal%2Csquare&phrase=' + searchTerm,
+        path: '/v3/search/images?exclude_nudity=true&fields=comp&license_models=royalty_free&orientations=horizontal%2Csquare&page_size=100&phrase=' + searchTerm,
         method: 'GET',
         headers: {
             'Api-Key': process.env.GETTY_API
@@ -136,8 +136,10 @@ function makeGettyRequest(sendBackGetty ){  //calls sendback at end
             //console.log(gettyResponseJSON);
             var choice = Math.floor(Math.random() * images.length); 
             console.log("num images: " + images.length + " ChosenIndex: " + choice);
+            var sizesCount = images[choice].display_sizes.length;
+            console.log("chosen image sizes: " + sizesCount);
             //console.log("url of first Image: " + images[0].display_sizes[0]);
-            var imageURI = images[choice].display_sizes[0].uri;
+            var imageURI = images[choice].display_sizes[sizesCount-1].uri;
                    
           //callback return
             sendBackGetty(imageURI);
@@ -154,8 +156,7 @@ function makeGettyRequest(sendBackGetty ){  //calls sendback at end
 router.get('/', function(req, res, next) {
     
     
-    var tweetShow = "";
-    var gettyShow = "";
+ 
 
     
      getAccessToken(function(accessToken){
@@ -164,23 +165,22 @@ router.get('/', function(req, res, next) {
             //console.log("num Tweets: " + tweets.length )
             
             //res.render('twitter', {tweetsList: tweet});
-            tweetShow = tweet.text;
+            makeGettyRequest(function(gettyURL){
+           
             
+                console.log("Twitter set: " + tweet);
+                console.log("getty set: " + gettyURL);
+                res.render('twitter',{gettyURL: gettyURL, tweet: tweet});
+                // res.render('index', { title: 'Express', className: "CST338"});
+            
+                //res.render('gettyURL',{gettyURL: gettyURL});
+            
+            });
         });
     });
     
       //send the API call and parse the response
-    makeGettyRequest(function(gettyURL){
-        gettyShow = gettyURL;
-        
-       
-        //res.render('gettyURL',{gettyURL: gettyURL});
-        
-    });
-    console.log("Twitter set: " + tweetShow);
-     console.log("getty set: " + gettyShow);
-    res.render('twitter',{gettyURL: gettyShow, tweet: tweetShow});
-    // res.render('index', { title: 'Express', className: "CST338"});
+   
 });
 
 module.exports = router;

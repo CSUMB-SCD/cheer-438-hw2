@@ -6,3 +6,37 @@ body {
 a {
   color: #00B7FF;
 }
+
+.twitterHolder{
+
+  background-position: center; 
+  width: 60%;
+  height: 600px;
+  background-repeat: no-repeat;
+  background-size: contain;
+  margin: auto;
+  
+  padding-top: 200px;
+  /*padding: 10px;*/
+  
+}
+
+.tweet{
+  color: white;
+  outline-color: black;
+  
+  outline: 1px dashed #98abb9;
+	outline-offset: -5px;
+	
+	background-color: #556068;
+	opacity: .85;
+	height: auto;
+	width: 400px;
+	padding: 4%;
+	margin: auto;
+	
+	/*shadow*/
+
+	box-shadow: 2px 2px 2px #000;
+}
+
