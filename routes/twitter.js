@@ -88,6 +88,7 @@ function makeTwitterRequest(accessToken, sendResponseToBrowser){
             var tweetsList = responseJSON.statuses;
             console.log("num Tweets: " + tweetsList.length )
             var twit = Math.floor(Math.random() * tweetsList.length); 
+            console.log("Tweet choiceIndex: " + twit)
             var tweet = tweetsList[twit];
             
             
