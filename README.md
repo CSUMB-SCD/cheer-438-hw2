@@ -6,8 +6,13 @@
      `-----'`--' `---'  `----'  `---'  `--'    `--'`-------' `------'
     ----------------------------------------------------------------- 
 
+# Harlan Cheer, Potatweet
+## The next step in potato-tweet technologies
 
-Hi there! Welcome to Cloud9 IDE!
+This repo is for Harlan Cheer's cst 438 homework 2, which involves making calls to multiple APIs, Twitter and Getty Images, to display images and tweets in relation to potatos. Using Oauth 2.0 for Twitter, to gain access to status posts from twitter. 
+
+## Some Questions:
+
 
 ### What was the theme you chose?
 #### I made an app that showed images and tweets related to potatos. I think it was something everyone could agree is a great thing
